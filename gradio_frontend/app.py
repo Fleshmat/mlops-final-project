@@ -27,13 +27,7 @@ def predict_tabular(values: str):
 
 
 def predict_tabular(account_age_days, total_transactions_user,
-                    avg_amount_user, amount, promo_used, avs_match,
-                    cvv_result, three_ds_flag, shipping_distance_km,
-                    country, channel, merchant_category):
-    
-    country_map = {"DE":0,"ES":1,"FR":2,"GB":3,"IT":4,"NL":5,"PL":6,"RO":7,"TR":8,"US":9}
-    channel_map = {"app":0,"web":1}
-    merchant_map = {"electronics":0,"fashion":1,"gaming":2,"grocery":3,"travel":4}
+                    avg_amount_user, amount, shipping_distance_km):
     
     try:
         vals = [
@@ -41,14 +35,7 @@ def predict_tabular(account_age_days, total_transactions_user,
             int(total_transactions_user),
             float(avg_amount_user),
             float(amount),
-            int(promo_used),
-            int(avs_match),
-            int(cvv_result),
-            int(three_ds_flag),
-            float(shipping_distance_km),
-            country_map[country],
-            channel_map[channel],
-            merchant_map[merchant_category]
+            float(shipping_distance_km)
         ]
 
         resp = requests.post(SKLEARN_URL, json={"features": vals}, timeout=70)
@@ -82,14 +69,7 @@ with gr.Blocks() as demo:
         total_transactions_user = gr.Number(label="Total de transacciones del usuario")
         avg_amount_user = gr.Number(label="Monto promedio del usuario")
         amount = gr.Number(label="Monto de la transacción")
-        promo_used = gr.Radio(choices=["0","1"], label="Promoción usada")
-        avs_match = gr.Radio(choices=["0","1"], label="Coincidencia AVS")
-        cvv_result = gr.Radio(choices=["0","1"], label="Resultado CVV")
-        three_ds_flag = gr.Radio(choices=["0","1"], label="Seguridad 3DS activada")
         shipping_distance_km = gr.Number(label="Distancia de envío (km)")
-        country = gr.Dropdown(choices=["DE","ES","FR","GB","IT","NL","PL","RO","TR","US"], label="País")
-        channel = gr.Dropdown(choices=["app","web"], label="Canal")
-        merchant_category = gr.Dropdown(choices=["electronics","fashion","gaming","grocery","travel"], label="Categoría del comerciante")
 
         pred_btn = gr.Button("Predecir")
         pred_out = gr.JSON()
@@ -97,9 +77,8 @@ with gr.Blocks() as demo:
         pred_btn.click(
             fn=predict_tabular,
             inputs=[account_age_days, total_transactions_user,
-                    avg_amount_user, amount, promo_used, avs_match,
-                    cvv_result, three_ds_flag, shipping_distance_km,
-                    country, channel, merchant_category],
+                    avg_amount_user, amount,
+                     shipping_distance_km],
             outputs=pred_out
         )
     with gr.Tab("Clasificador de Imágenes"):

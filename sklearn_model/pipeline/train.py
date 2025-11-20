@@ -51,7 +51,8 @@ def train_and_log(save_path: str = os.getenv("MODEL_PATH")):
     data_path = download_dataset()
     df = pd.read_csv(data_path)
 
-    X = df.drop(columns=["is_fraud", "transaction_id", "transaction_time", "bin_country", "user_id"])
+    X = df.drop(columns=["is_fraud", "transaction_id", "transaction_time", "bin_country", "user_id",
+                         "avs_match", "cvv_result", "three_ds_flag", "promo_used", "merchant_category", "country", "channel"])
     y = df["is_fraud"]
 
     X_train, X_test, y_train, y_test = train_test_split(
