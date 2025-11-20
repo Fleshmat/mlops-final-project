@@ -1,0 +1,88 @@
+services:
+  mlflow:
+    image: python:3.13-slim
+    command: sh -c "pip install mlflow && mlflow server --host 0.0.0.0
+            --port 5000 --backend-store-uri sqlite:///mlflow-db/mlflow.db --default-artifact-root /mlruns"
+    volumes: 
+      - ./mlflow:/mlflow
+      - ./mlflow-db:/mlflow-db
+    ports:
+      - "5000:5000"
+    networks:
+      - mlops-net
+
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ./models:/root/.ollama
+    ports:
+      - "11434:11434"
+    entrypoint: ["/bin/sh", "-c"]
+    command: >
+      "ollama serve &
+      sleep 5 &&
+      ollama pull gemma3:1b &&
+      wait"
+    networks:
+      - mlops-net
+
+  llm_connector:
+    build: ../llm_connector
+    env_file:
+      - .env
+    depends_on:
+      - mlflow
+      - ollama
+    ports:
+      - "8000:8000"
+    networks:
+      - mlops-net
+
+  sklearn_model:
+    build:
+      context: ../sklearn_model
+      args:
+        KAGGLE_USERNAME: ${KAGGLE_USERNAME}
+        KAGGLE_KEY: ${KAGGLE_KEY}
+        KAGGLE_DATASET: ${KAGGLE_DATASET}
+        DATA_DIR: ${DATA_DIR}
+        MODEL_PATH: ${MODEL_PATH}
+    env_file:
+      - .env
+    depends_on:
+      - mlflow
+    ports:
+      - "8001:8001"
+    networks:
+      - mlops-net
+
+  cnn_image:
+    build: 
+      context: ../cnn_image
+      args:
+        CNN_MODEL_PATH: ${CNN_MODEL_PATH}
+    env_file:
+      - .env
+    ports:
+      - "8002:8002"
+    depends_on:
+      - mlflow
+    networks:
+      - mlops-net
+
+  gradio_frontend:
+    build: ../gradio_frontend
+    env_file:
+      - .env
+    ports:
+      - "7860:7860"
+    depends_on:
+      - llm_connector
+      - sklearn_model
+      - cnn_image
+    networks:
+      - mlops-net
+
+networks:
+  mlops-net:
+    driver: bridge

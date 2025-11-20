@@ -1,0 +1,9 @@
+scikit-learn
+mlflow
+joblib
+python-json-logger
+fastapi
+pydantic
+uvicorn[standard]
+pandas
+kaggle

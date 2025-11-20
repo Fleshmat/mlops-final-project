@@ -1,0 +1,5 @@
+pydantic
+python-json-logger
+fastapi
+requests
+uvicorn[standard]

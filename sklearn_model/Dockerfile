@@ -1,0 +1,18 @@
+FROM python:3.13-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+ARG KAGGLE_USERNAME
+ARG KAGGLE_KEY
+ARG KAGGLE_DATASET
+ARG DATA_DIR
+ARG MODEL_PATH
+ENV KAGGLE_USERNAME=$KAGGLE_USERNAME
+ENV KAGGLE_KEY=$KAGGLE_KEY
+ENV KAGGLE_DATASET=$KAGGLE_DATASET
+ENV DATA_DIR=$DATA_DIR
+ENV MODEL_PATH=$MODEL_PATH
+RUN python pipeline/train.py
+EXPOSE 8001
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]

@@ -1,0 +1,7 @@
+torch
+torchvision
+Pillow
+python-multipart
+uvicorn[standard]
+python-json-logger
+fastapi
