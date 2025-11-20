@@ -6,9 +6,6 @@ Propósito: Interfaz web (Gradio) que permite interactuar con los otros tres ser
 - Enviar datos tabulares al modelo de `sklearn_model` para validación/predicción.
 - Subir imágenes para clasificación con `cnn_image`.
 
-Autor: Auto-generated
-Fecha: 2025-11-18
-
 Cómo ejecutar localmente:
 
 1. Asegúrate de tener los servicios backend corriendo (por ejemplo con Docker Compose desde `infra/`).
