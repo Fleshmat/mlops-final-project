@@ -78,7 +78,7 @@ def train_and_log(save_path: str = os.getenv("MODEL_PATH")):
         mlflow.log_metric("accuracy", acc)
 
         os.makedirs(os.path.dirname(save_path), exist_ok=True)
-        joblib.dump(pipeline, save_path)
+        joblib.dump((pipeline, X.columns.tolist()), save_path)
         mlflow.log_artifact(save_path)
 
     return pipeline, acc

@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import joblib
 from pythonjsonlogger import jsonlogger
+import pandas as pd
 
 logger = logging.getLogger("sklearn_model")
 handler = logging.StreamHandler()
@@ -23,9 +24,9 @@ class Features(BaseModel):
 
 @app.on_event("startup")
 def load_model():
-    global model
+    global model, columns
     try:
-        model = joblib.load(MODEL_PATH)
+        model, columns = joblib.load(MODEL_PATH)
         logger.info("Loaded model", extra={"path": MODEL_PATH})
     except Exception as exc:
         logger.warning("Model not loaded at startup", extra={"error": str(exc)})
@@ -37,7 +38,8 @@ def predict(payload: Features):
     if model is None:
         raise HTTPException(status_code=503, detail="Model not available. Train first or set MODEL_PATH.")
     try:
-        pred = model.predict([payload.features]).tolist()
+        input_df = pd.DataFrame([payload.features], columns=columns)
+        pred = model.predict(input_df).tolist()
         return {"prediction": pred}
     except Exception as exc:
         logger.error("Prediction failed", extra={"error": str(exc)})
