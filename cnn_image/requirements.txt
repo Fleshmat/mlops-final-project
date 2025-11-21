@@ -1,7 +1,10 @@
-torch
-torchvision
 Pillow
 python-multipart
 uvicorn[standard]
 python-json-logger
 fastapi
+
+--index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+--extra-index-url https://pypi.org/simple

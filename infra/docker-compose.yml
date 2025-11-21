@@ -1,13 +1,18 @@
 services:
   mlflow:
-    image: python:3.13-slim
-    command: sh -c "pip install mlflow && mlflow server --host 0.0.0.0
-            --port 5000 --backend-store-uri sqlite:///mlflow-db/mlflow.db --default-artifact-root /mlruns"
-    volumes: 
-      - ./mlflow:/mlflow
-      - ./mlflow-db:/mlflow-db
+    image: burakince/mlflow
+    container_name: mlflow
     ports:
       - "5000:5000"
+    env_file:
+      - .env
+    volumes:
+      - ./mlflow:/mlflow
+    healthcheck:
+      test: ["CMD-SHELL", "python -c 'import urllib.request; urllib.request.urlopen(\"http://127.0.0.1:5000\")' || exit 1"]
+      interval: 10s
+      retries: 15
+      start_period: 10s
     networks:
       - mlops-net
 
@@ -31,8 +36,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - mlflow
-      - ollama
+      mlflow:
+        condition: service_healthy
     ports:
       - "8000:8000"
     networks:
@@ -50,7 +55,8 @@ services:
     env_file:
       - .env
     depends_on:
-      - mlflow
+      mlflow:
+        condition: service_healthy
     ports:
       - "8001:8001"
     networks:
@@ -66,7 +72,8 @@ services:
     ports:
       - "8002:8002"
     depends_on:
-      - mlflow
+      mlflow:
+        condition: service_healthy
     networks:
       - mlops-net
 
